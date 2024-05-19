@@ -1,0 +1,22 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://scenes/rightPaddle.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/leftPaddle.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/separator.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/ball.tscn" type="PackedScene" id=4]
+[ext_resource path="res://scenes/scripts/Game.gd" type="Script" id=5]
+
+[node name="Game" type="Node2D"]
+script = ExtResource( 5 )
+
+[node name="leftPaddle" parent="." instance=ExtResource( 2 )]
+position = Vector2( 48, 400 )
+
+[node name="rightPaddle" parent="." instance=ExtResource( 1 )]
+position = Vector2( 1232, 400 )
+
+[node name="separator" parent="." instance=ExtResource( 3 )]
+position = Vector2( 636, 400 )
+
+[node name="ball" parent="." instance=ExtResource( 4 )]
+position = Vector2( 637, 400 )
