@@ -3,13 +3,15 @@ extends Node2D
 var screen_size
 var pad_size
 var direction=Vector2(1.0,0.0)
+var left_score=0
+var right_score=0
 
 const MIN_ANGLE_DEGREES=30
 const MAX_ANGLE_DEGREES=60
 
 const INITIAL_BALL_SPEED=300
 var ball_speed=INITIAL_BALL_SPEED
-const PAD_SPEED=250
+const PAD_SPEED=300
 
 const BALL_SIZE=32
 const BALL_RADIUS=BALL_SIZE/2
@@ -43,15 +45,27 @@ func _process(delta):
 		direction.x=-direction.x
 		direction.y=randf()*2.0-1
 		direction=direction.normalized()
-		ball_speed*=1.2
+		ball_speed*=1.1
 
 	ball_position+=direction*ball_speed*delta	
-	#Check for gameover		
-	if (ball_position.x<0 or ball_position.x>screen_size.x):
+	
+	#Check for score
+	if (ball_position.x<0):
+		right_score+=1
+		$ScoreHUD.update_score_right(right_score)
 		ball_position=screen_size*0.5
 		ball_speed=INITIAL_BALL_SPEED
 		direction=Vector2(-1,0)
 		randomize_direction()
+		
+	elif (ball_position.x>screen_size.x):
+		left_score+=1
+		$ScoreHUD.update_score_left(left_score)
+		ball_position=screen_size*0.5
+		ball_speed=INITIAL_BALL_SPEED
+		direction=Vector2(-1,0)
+		randomize_direction()
+
 		
 	$ball.set_position(ball_position)
 	
@@ -105,3 +119,7 @@ func clamp_angle(direction):
 	new_direction.x=sign(direction.x)*abs(new_direction.x)
 	
 	return new_direction
+	
+
+
+		
