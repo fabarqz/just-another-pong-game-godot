@@ -6,12 +6,14 @@ var direction=Vector2(1.0,0.0)
 var left_score=0
 var right_score=0
 
+
 const MIN_ANGLE_DEGREES=30
 const MAX_ANGLE_DEGREES=60
 
+const EASING_FACTOR=0.2
 const INITIAL_BALL_SPEED=300
 var ball_speed=INITIAL_BALL_SPEED
-const PAD_SPEED=300
+const PAD_SPEED=450
 
 const BALL_SIZE=32
 const BALL_RADIUS=BALL_SIZE/2
@@ -22,9 +24,11 @@ func _ready():
 	pad_size=$leftPaddle.get_texture().get_size()
 	set_process(true)
 	randomize_direction()
+	$preStart.connect("countdown_finished",self,"_on_preStart_countdown_finished")
 	
 	
 func _process(delta):
+	
 	var ball_position=$ball.get_position()
 	var left_pad=Rect2($leftPaddle.get_position()-pad_size*0.5,pad_size)
 	var right_pad=Rect2($rightPaddle.get_position()-pad_size*0.5,pad_size)
@@ -54,17 +58,14 @@ func _process(delta):
 		right_score+=1
 		$ScoreHUD.update_score_right(right_score)
 		ball_position=screen_size*0.5
-		ball_speed=INITIAL_BALL_SPEED
-		direction=Vector2(-1,0)
-		randomize_direction()
+		reset_ball_countdown()
+
 		
 	elif (ball_position.x>screen_size.x):
 		left_score+=1
 		$ScoreHUD.update_score_left(left_score)
 		ball_position=screen_size*0.5
-		ball_speed=INITIAL_BALL_SPEED
-		direction=Vector2(-1,0)
-		randomize_direction()
+		reset_ball_countdown()
 
 		
 	$ball.set_position(ball_position)
@@ -84,10 +85,11 @@ func _process(delta):
 	#Right Paddle Control (Computer)
 	var right_position=$rightPaddle.get_position()
 	if(ball_position.y<right_position.y and right_position.y>0):
-		right_position.y-=PAD_SPEED*delta
+		#right_position.y-=PAD_SPEED*delta
+		right_position.y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
 	elif(ball_position.y>right_position.y and right_position.y<screen_size.y):	
-		right_position.y+=PAD_SPEED*delta
-		
+		#right_position.y+=PAD_SPEED*delta
+		right_position.y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
 	$rightPaddle.set_position(right_position)	
 		
 func randomize_direction():
@@ -120,6 +122,13 @@ func clamp_angle(direction):
 	
 	return new_direction
 	
+func reset_ball_countdown():
+	ball_speed=INITIAL_BALL_SPEED
+	$preStart.countdown()
+	direction=Vector2.ZERO
 
 
-		
+func _on_preStart_countdown_finished():
+	direction=Vector2(-1,0)
+	randomize_direction()
+	ball_speed=INITIAL_BALL_SPEED
