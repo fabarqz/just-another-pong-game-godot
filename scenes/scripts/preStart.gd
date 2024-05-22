@@ -10,6 +10,7 @@ func _ready():
 func countdown():
 	current_index=0
 	$countdownLabel.visible=true
+	emit_signal("countdown_started")
 	_on_inBetween_timeout()
 
 func _on_inBetween_timeout():
@@ -22,4 +23,6 @@ func _on_inBetween_timeout():
 		$countdownLabel.visible=false
 		emit_signal("countdown_finished")	 # Replace with function body.
 
+signal countdown_started
 signal countdown_finished
+

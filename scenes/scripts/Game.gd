@@ -5,7 +5,7 @@ var pad_size
 var direction=Vector2(1.0,0.0)
 var left_score=0
 var right_score=0
-
+var is_rotating=true
 
 const MIN_ANGLE_DEGREES=30
 const MAX_ANGLE_DEGREES=60
@@ -24,6 +24,7 @@ func _ready():
 	pad_size=$leftPaddle.get_texture().get_size()
 	set_process(true)
 	randomize_direction()
+	$preStart.connect("countdown_started",self,"_on_preStart_countdown_started")
 	$preStart.connect("countdown_finished",self,"_on_preStart_countdown_finished")
 	
 	
@@ -33,7 +34,8 @@ func _process(delta):
 	var left_pad=Rect2($leftPaddle.get_position()-pad_size*0.5,pad_size)
 	var right_pad=Rect2($rightPaddle.get_position()-pad_size*0.5,pad_size)
 
-
+	if is_rotating:
+		$ball.rotation+=delta
 			
 	if((ball_position.y-BALL_RADIUS <=0 and direction.y<0) or (ball_position.y+BALL_RADIUS>screen_size.y and direction.y>0)):
 		direction.y=-direction.y
@@ -123,12 +125,17 @@ func clamp_angle(direction):
 	return new_direction
 	
 func reset_ball_countdown():
+	direction=Vector2.ZERO
 	ball_speed=INITIAL_BALL_SPEED
 	$preStart.countdown()
-	direction=Vector2.ZERO
+	
 
 
+func _on_preStart_countdown_started():
+	is_rotating=false
+	
 func _on_preStart_countdown_finished():
+	is_rotating=true
 	direction=Vector2(-1,0)
 	randomize_direction()
 	ball_speed=INITIAL_BALL_SPEED
