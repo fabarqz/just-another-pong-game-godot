@@ -5,7 +5,9 @@ var pad_size
 var direction=Vector2(1.0,0.0)
 var left_score=0
 var right_score=0
+var win_condition=4
 var is_rotating=true
+
 
 const MIN_ANGLE_DEGREES=30
 const MAX_ANGLE_DEGREES=60
@@ -51,7 +53,7 @@ func _process(delta):
 		direction.x=-direction.x
 		direction.y=randf()*2.0-1
 		direction=direction.normalized()
-		ball_speed*=1.1
+		ball_speed*=1.05
 
 	ball_position+=direction*ball_speed*delta	
 	
@@ -71,6 +73,15 @@ func _process(delta):
 
 		
 	$ball.set_position(ball_position)
+	
+	#checking winner
+	
+	if right_score==win_condition:
+		direction=Vector2.ZERO
+		$ScoreHUD/label_right.text="WINNER"
+	elif left_score==win_condition:
+		direction=Vector2.ZERO
+		$ScoreHUD/label_left.text="WINNER"
 	
 	#Left Paddle Control
 	
@@ -109,8 +120,8 @@ func degree_to_radian(degrees):
 func radian_to_degree(radians):
 	return radians*180.0/PI
 
-func clamp_angle(direction):
-	var angle_degrees=radian_to_degree(direction.angle())
+func clamp_angle(dir):
+	var angle_degrees=radian_to_degree(dir.angle())
 	
 
 	if angle_degrees > 180 - MIN_ANGLE_DEGREES and angle_degrees < 180 + MIN_ANGLE_DEGREES:
