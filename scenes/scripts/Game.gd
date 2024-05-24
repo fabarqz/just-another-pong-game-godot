@@ -7,19 +7,20 @@ var left_score=0
 var right_score=0
 var win_condition=4
 var is_rotating=true
-
+var x_offset=640
+var winner_result=" "
 
 const MIN_ANGLE_DEGREES=30
 const MAX_ANGLE_DEGREES=60
 
-const EASING_FACTOR=0.2
+const EASING_FACTOR=0.1
 const INITIAL_BALL_SPEED=300
 var ball_speed=INITIAL_BALL_SPEED
 const PAD_SPEED=450
 
 const BALL_SIZE=32
 const BALL_RADIUS=BALL_SIZE/2
-
+signal victory_achieved
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	screen_size=get_viewport_rect().size
@@ -28,7 +29,8 @@ func _ready():
 	randomize_direction()
 	$preStart.connect("countdown_started",self,"_on_preStart_countdown_started")
 	$preStart.connect("countdown_finished",self,"_on_preStart_countdown_finished")
-	
+	$gameOver.visible=false
+	$gameOver.connect("reset_game",self,"_on_gameOver_reset_game")
 	
 func _process(delta):
 	
@@ -53,7 +55,7 @@ func _process(delta):
 		direction.x=-direction.x
 		direction.y=randf()*2.0-1
 		direction=direction.normalized()
-		ball_speed*=1.05
+		ball_speed*=1.075
 
 	ball_position+=direction*ball_speed*delta	
 	
@@ -78,10 +80,13 @@ func _process(delta):
 	
 	if right_score==win_condition:
 		direction=Vector2.ZERO
-		$ScoreHUD/label_right.text="WINNER"
+		winner_result="Red Team"
+		emit_signal("victory_achieved")
+		
 	elif left_score==win_condition:
 		direction=Vector2.ZERO
-		$ScoreHUD/label_left.text="WINNER"
+		winner_result="Blue Team"
+		emit_signal("victory_achieved")
 	
 	#Left Paddle Control
 	
@@ -97,12 +102,31 @@ func _process(delta):
 		
 	#Right Paddle Control (Computer)
 	var right_position=$rightPaddle.get_position()
-	if(ball_position.y<right_position.y and right_position.y>0):
-		#right_position.y-=PAD_SPEED*delta
-		right_position.y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
-	elif(ball_position.y>right_position.y and right_position.y<screen_size.y):	
-		#right_position.y+=PAD_SPEED*delta
-		right_position.y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
+	var target_position_y=right_position.y
+	
+	if ball_position.x>x_offset:
+		if ball_position.y <right_position.y and right_position.y>0:
+			target_position_y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
+		elif ball_position.y>right_position.y and right_position.y<screen_size.y:
+			target_position_y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
+		
+	var move_increment=target_position_y-right_position.y
+	
+	move_increment=clamp(move_increment,-PAD_SPEED*delta,PAD_SPEED*delta)
+	
+	#update position
+	right_position.y+=move_increment
+	$rightPaddle.set_position(right_position)
+	
+	#old code below
+	##if(ball_position.y<right_position.y and right_position.y>0 and ball_position.x>x_offset):
+	##	#right_position.y-=PAD_SPEED*delta
+	##	right_position.y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
+	##elif(ball_position.y>right_position.y and right_position.y<screen_size.y and ball_position.x>x_offset):	
+	##	#right_position.y+=PAD_SPEED*delta
+	##	right_position.y=lerp(right_position.y,ball_position.y,EASING_FACTOR)
+	
+	
 	$rightPaddle.set_position(right_position)	
 		
 func randomize_direction():
@@ -140,8 +164,6 @@ func reset_ball_countdown():
 	ball_speed=INITIAL_BALL_SPEED
 	$preStart.countdown()
 	
-
-
 func _on_preStart_countdown_started():
 	is_rotating=false
 	
@@ -150,3 +172,15 @@ func _on_preStart_countdown_finished():
 	direction=Vector2(-1,0)
 	randomize_direction()
 	ball_speed=INITIAL_BALL_SPEED
+
+func _on_gameOver_reset_game():
+	reset_game()
+
+func reset_game():
+	$gameOver.visible=false
+	winner_result=" "
+	left_score=0
+	right_score=0
+	$ScoreHUD/score_left.text=str(left_score)
+	$ScoreHUD/score_right.text=str(right_score) # Replace with function body.
+	reset_ball_countdown()

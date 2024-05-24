@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://scenes/rightPaddle.tscn" type="PackedScene" id=1]
 [ext_resource path="res://scenes/leftPaddle.tscn" type="PackedScene" id=2]
@@ -11,6 +11,7 @@
 [ext_resource path="res://assets/art/nu_paddle_right.png" type="Texture" id=9]
 [ext_resource path="res://assets/art/nu_ball.png" type="Texture" id=10]
 [ext_resource path="res://scenes/animated_water.tscn" type="PackedScene" id=11]
+[ext_resource path="res://scenes/gameOver.tscn" type="PackedScene" id=12]
 
 [node name="Game" type="Node2D"]
 script = ExtResource( 5 )
@@ -36,5 +37,9 @@ position = Vector2( 636, 400 )
 position = Vector2( 637, 400 )
 texture = ExtResource( 10 )
 
+[node name="gameOver" parent="." instance=ExtResource( 12 )]
+
+[connection signal="victory_achieved" from="." to="gameOver" method="_on_Game_victory_achieved"]
 [connection signal="countdown_finished" from="preStart" to="." method="_on_preStart_countdown_finished"]
 [connection signal="countdown_started" from="preStart" to="." method="_on_preStart_countdown_started"]
+[connection signal="reset_game" from="gameOver" to="." method="_on_gameOver_reset_game"]

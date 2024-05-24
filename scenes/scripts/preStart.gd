@@ -2,6 +2,9 @@ extends CanvasLayer
 
 var countdown_items=["3","2","1","GO!"]
 var current_index=0
+signal countdown_started
+signal countdown_finished
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
@@ -23,6 +26,5 @@ func _on_inBetween_timeout():
 		$countdownLabel.visible=false
 		emit_signal("countdown_finished")	 # Replace with function body.
 
-signal countdown_started
-signal countdown_finished
+
 
