@@ -23,6 +23,7 @@ const BALL_RADIUS=BALL_SIZE/2
 signal victory_achieved
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	initial_ball_countdown()
 	screen_size=get_viewport_rect().size
 	pad_size=$leftPaddle.get_texture().get_size()
 	set_process(true)
@@ -158,7 +159,12 @@ func clamp_angle(dir):
 	new_direction.x=sign(direction.x)*abs(new_direction.x)
 	
 	return new_direction
-	
+
+func initial_ball_countdown():
+	direction=Vector2.ZERO
+	ball_speed=0
+	$preStart.countdown()
+
 func reset_ball_countdown():
 	direction=Vector2.ZERO
 	ball_speed=INITIAL_BALL_SPEED
